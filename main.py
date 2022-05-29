@@ -40,7 +40,7 @@ from miscc.utils import imagenet_deprocess_batch
 from miscc.config import cfg, cfg_from_file
 from miscc.losses import DAMSM_loss
 from sync_batchnorm import DataParallelWithCallback
-#from datasets_everycap import TextDataset
+# from datasets_everycap import TextDataset
 from datasets import TextDataset
 from datasets import prepare_data
 from DAMSM import RNN_ENCODER, CNN_ENCODER
@@ -50,6 +50,8 @@ dir_path = (os.path.abspath(os.path.join(os.path.realpath(__file__), './.')))
 sys.path.append(dir_path)
 
 multiprocessing.set_start_method('spawn', True)
+# 父进程启动一个新的Python解释器， 子进程将只继承运行run()方法所需的资源。不继承父进程不必要的文件描述符和句柄（一种特殊的只能指针）。
+# 与使用fork或forkserver相比，使用此方法启动进程相当慢。在Unix和Windows上可用，Windows上为默认。
 
 
 UPDATE_INTERVAL = 200
@@ -85,13 +87,13 @@ def sampling(text_encoder, netG, dataloader, ixtoword, device):
     # hard debug by setting the index of trained epoch, adjust it as your need
 
     split_dir = 'valid'
-    #split_dir = 'test_every'
+    # split_dir = 'test_every'
     # Build and load the generator
     netG.load_state_dict(torch.load(model_dir))
     netG.eval()
 
     batch_size = cfg.TRAIN.BATCH_SIZE
-    #s_tmp = model_dir
+    # s_tmp = model_dir
     s_tmp = model_dir[:model_dir.rfind('.pth')]
     s_tmp_dir = s_tmp
     fake_img_save_dir = '%s/%s' % (s_tmp, split_dir)
@@ -121,7 +123,7 @@ def sampling(text_encoder, netG, dataloader, ixtoword, device):
             words_embs, sent_emb = words_embs.detach(), sent_emb.detach()
 
             # code for generating captions
-            #cap_imgs = cap2img_new(ixtoword, captions, cap_lens, s_tmp_dir)
+            # cap_imgs = cap2img_new(ixtoword, captions, cap_lens, s_tmp_dir)
 
             #######################################################
             # (2) Generate fake images
@@ -145,7 +147,7 @@ def sampling(text_encoder, netG, dataloader, ixtoword, device):
                 im = np.transpose(im, (1, 2, 0))
                 im = Image.fromarray(im)
 
-                #fullpath = '%s_%3d.png' % (s_tmp,i)
+                # fullpath = '%s_%3d.png' % (s_tmp,i)
                 fullpath = '%s_s%d.png' % (s_tmp, idx)
                 im.save(fullpath)
 
@@ -241,8 +243,8 @@ def gen_sample(text_encoder, netG, device, wordtoix):
             noise = []
             for i in batch_size:
                 noise.append(torch.randn(1, 100))
-            noise = torch.cat(noise,0)
-            
+            noise = torch.cat(noise, 0)
+
             noise = noise.to(device)
             fake_imgs, stage_masks = netG(noise, sent_emb)
             stage_mask = stage_masks[-1]
@@ -312,12 +314,14 @@ def write_images_losses(writer, imgs, fake_imgs, errD, d_loss, errG, DAMSM, epoc
     writer.add_scalar('errG/g_loss', errG, index)
     writer.add_scalar('errG/DAMSM', DAMSM, index)
     imgs_print = imagenet_deprocess_batch(imgs)
-    #imgs_64_print = imagenet_deprocess_batch(fake_imgs[0])
-    #imgs_128_print = imagenet_deprocess_batch(fake_imgs[1])
+    # imgs_64_print = imagenet_deprocess_batch(fake_imgs[0])
+    # imgs_128_print = imagenet_deprocess_batch(fake_imgs[1])
     imgs_256_print = imagenet_deprocess_batch(fake_imgs)
-    writer.add_image('images/img1_pred', torchvision.utils.make_grid(imgs_256_print, normalize=True, scale_each=True), index)
-    #writer.add_image('images/img2_caption', torchvision.utils.make_grid(cap_imgs, normalize=True, scale_each=True), index)
-    writer.add_image('images/img3_real', torchvision.utils.make_grid(imgs_print, normalize=True, scale_each=True), index)
+    writer.add_image('images/img1_pred', torchvision.utils.make_grid(imgs_256_print, normalize=True, scale_each=True),
+                     index)
+    # writer.add_image('images/img2_caption', torchvision.utils.make_grid(cap_imgs, normalize=True, scale_each=True), index)
+    writer.add_image('images/img3_real', torchvision.utils.make_grid(imgs_print, normalize=True, scale_each=True),
+                     index)
 
 
 def mkdir_p(path):
@@ -437,7 +441,7 @@ def train(dataloader, ixtoword, netG, netD, text_encoder, image_encoder,
             optimizerG.step()
 
         # caption can be converted to image and shown in tensorboard
-        #cap_imgs = cap2img(ixtoword, captions, cap_lens)
+        # cap_imgs = cap2img(ixtoword, captions, cap_lens)
 
         write_images_losses(writer, imgs, fake, errD, d_loss, errG, DAMSM, epoch)
 
@@ -466,7 +470,7 @@ if __name__ == "__main__":
         args.manualSeed = 100
     elif args.manualSeed is None:
         args.manualSeed = 100
-        #args.manualSeed = random.randint(1, 10000)
+        # args.manualSeed = random.randint(1, 10000)
     print("seed now is : ", args.manualSeed)
     random.seed(args.manualSeed)
     np.random.seed(args.manualSeed)
@@ -478,21 +482,22 @@ if __name__ == "__main__":
     now = datetime.datetime.now(dateutil.tz.tzlocal())
     timestamp = now.strftime('%Y_%m_%d_%H_%M_%S')
     output_dir = '../output/%s_%s_%s' % \
-        (cfg.DATASET_NAME, cfg.CONFIG_NAME, timestamp)
+                 (cfg.DATASET_NAME, cfg.CONFIG_NAME, timestamp)
 
     # Kai: i don't want to specify a gpu id
     # torch.cuda.set_device(cfg.GPU_ID)
 
-    cudnn.benchmark = True
+    cudnn.benchmark = True  # 可以提升一点训练速度
 
     # Get data loader ##################################################
     imsize = cfg.TREE.BASE_SIZE
     batch_size = cfg.TRAIN.BATCH_SIZE
     image_transform = transforms.Compose([
         transforms.Resize(int(imsize * 76 / 64)),
-        transforms.RandomCrop(imsize),
-        transforms.RandomHorizontalFlip()])
+        transforms.RandomCrop(imsize),  # 随机裁剪
+        transforms.RandomHorizontalFlip()])  # 随机水平翻转
     if cfg.B_VALIDATION:
+        # 测试
         dataset = TextDataset(cfg.DATA_DIR, 'test',
                               base_size=cfg.TREE.BASE_SIZE,
                               transform=image_transform)
@@ -504,6 +509,7 @@ if __name__ == "__main__":
             dataset, batch_size=batch_size, drop_last=True,
             shuffle=True, num_workers=int(cfg.WORKERS))
     else:
+        # 训练
         dataset = TextDataset(cfg.DATA_DIR, 'train',
                               base_size=cfg.TREE.BASE_SIZE,
                               transform=image_transform)
@@ -549,6 +555,7 @@ if __name__ == "__main__":
 
     if cfg.B_VALIDATION:
         sampling(text_encoder, netG, dataloader, ixtoword, device)  # generate images for the whole valid dataset
-        #gen_sample(text_encoder, netG, device, wordtoix) # generate images with description from user
+        # gen_sample(text_encoder, netG, device, wordtoix) # generate images with description from user
     else:
-        train(dataloader, ixtoword, netG, netD, text_encoder, image_encoder, optimizerG, optimizerD, state_epoch, batch_size, device)
+        train(dataloader, ixtoword, netG, netD, text_encoder, image_encoder, optimizerG, optimizerD, state_epoch,
+              batch_size, device)

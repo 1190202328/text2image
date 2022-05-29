@@ -14,7 +14,6 @@ import os.path as osp
 import numpy as np
 from easydict import EasyDict as edict
 
-
 __C = edict()
 cfg = __C
 
@@ -24,9 +23,9 @@ __C.CONFIG_NAME = ''
 __C.DATA_DIR = ''
 __C.GPU_ID = 0
 __C.CUDA = True
-__C.WORKERS = 6
+__C.WORKERS = 6  # 加载数据线程数
 
-__C.RNN_TYPE = 'LSTM'   # 'GRU'
+__C.RNN_TYPE = 'LSTM'  # 'GRU'
 __C.B_VALIDATION = False
 __C.RESTORE = False
 __C.USE_SN = False
@@ -34,7 +33,6 @@ __C.loss = 'hinge'
 __C.TREE = edict()
 __C.TREE.BRANCH_NUM = 3
 __C.TREE.BASE_SIZE = 64
-
 
 # Training options
 __C.TRAIN = edict()
@@ -59,7 +57,6 @@ __C.TRAIN.WARMUP_EPOCHS = 200
 __C.TRAIN.GSAVE_INTERVAL = 10
 __C.TRAIN.DSAVE_INTERVAL = 10
 
-
 # Modal options
 __C.GAN = edict()
 __C.GAN.DF_DIM = 64
@@ -70,12 +67,12 @@ __C.GAN.R_NUM = 2
 __C.GAN.B_ATTENTION = True
 __C.GAN.B_DCGAN = True
 
-
 __C.TEXT = edict()
 __C.TEXT.CAPTIONS_PER_IMAGE = 10
 __C.TEXT.EMBEDDING_DIM = 256
 __C.TEXT.WORDS_NUM = 18
 __C.TEXT.DAMSM_NAME = '../DAMSMencoders/coco/text_encoder200.pth'
+
 
 def _merge_a_into_b(a, b):
     """Merge config dictionary a into config dictionary b, clobbering the

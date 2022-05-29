@@ -32,9 +32,9 @@ class RNN_ENCODER(nn.Module):
                  nhidden=128, nlayers=1, bidirectional=True):
         super(RNN_ENCODER, self).__init__()
         self.n_steps = cfg.TEXT.WORDS_NUM
-        self.ntoken = ntoken  # size of the dictionary
-        self.ninput = ninput  # size of each embedding vector
-        self.drop_prob = drop_prob  # probability of an element to be zeroed
+        self.ntoken = ntoken  # size of the dictionary 词典大小
+        self.ninput = ninput  # size of each embedding vector ；embedding大小
+        self.drop_prob = drop_prob  # probability of an element to be zeroed；
         self.nlayers = nlayers  # Number of recurrent layers
         self.bidirectional = bidirectional
         self.rnn_type = cfg.RNN_TYPE
