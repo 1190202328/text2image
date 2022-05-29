@@ -19,8 +19,8 @@ The structure of the spatial-semantic aware (SSA) block  is shown as below
 
 ## Prepare data
 1. Download the preprocessed metadata for [birds](https://drive.google.com/open?id=1O_LtUP9sch09QH3s_EBAgLEctBQ5JBSJ) and [coco](https://drive.google.com/open?id=1rSnbIGNDGZeHlsUlLdahj0RJ9oo6lgH9) and save them to `data/`
-2. Download [birds](http://www.vision.caltech.edu/visipedia/CUB-200-2011.html) dataset and extract the images to `data/birds/`
-3. Download [coco](http://cocodataset.org/#download) dataset and extract the images to `data/coco/`
+2. Download [birds](http://www.vision.caltech.edu/datasets/cub_200_2011/) dataset and extract the images to `data/birds/`
+3. Download [coco2014](http://cocodataset.org/#download) dataset and extract the images to `data/coco/`
 
 ## Pre-trained DAMSM model
 1. Download the [pre-trained DAMSM](https://drive.google.com/open?id=1GNUKjVeyWYBJ8hEU-yrfYQpDOkxEyP3V) for CUB and save it to `DAMSMencoders/`
