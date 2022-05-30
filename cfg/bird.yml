@@ -6,7 +6,8 @@ GPU_ID: 0
 WORKERS: 1
 
 
-B_VALIDATION: True # True  # False
+#B_VALIDATION: True # True  # False
+B_VALIDATION: False
 RESTORE: False
 loss: 'hinge'
 
@@ -17,9 +18,11 @@ TREE:
 
 TRAIN:
   NF: 64 # default 64
-  BATCH_SIZE: 24 #24
+  #  BATCH_SIZE: 24 #24
+  BATCH_SIZE: 6
   MAX_EPOCH: 600
-  NET_G: './saved_model/OneDrive-2022-05-29/fixed/cub/netG_590.pth' # when validation, put the path of the trained model here
+  #  NET_G: './saved_model/OneDrive-2022-05-29/fixed/cub/netG_590.pth' # when validation, put the path of the trained model here
+  NET_G: ''
   WARMUP_EPOCHS: 100
   GSAVE_INTERVAL: 10
   DSAVE_INTERVAL: 10

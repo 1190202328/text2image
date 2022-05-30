@@ -26,8 +26,8 @@ __C.CUDA = True
 __C.WORKERS = 6  # 加载数据线程数
 
 __C.RNN_TYPE = 'LSTM'  # 'GRU'
-__C.B_VALIDATION = True  # 是否验证（是，则不训练）
-# __C.B_VALIDATION = False  # 是否验证（是，则不训练）
+# __C.B_VALIDATION = True  # 是否验证（是，则不训练）
+__C.B_VALIDATION = False  # 是否验证（是，则不训练）
 __C.RESTORE = False
 __C.USE_SN = False
 __C.loss = 'hinge'
