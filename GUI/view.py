@@ -147,17 +147,6 @@ def main(args):
     model_dict.update(pretrained_dict)
     netG.load_state_dict(model_dict)
 
-    # use gpu or not, change model to evaluation mode
-    if args.use_gpu:
-        text_encoder.cuda()
-        netG.cuda()
-        caption_idx.cuda()
-        caption_len.cuda()
-        noise.cuda()
-
-    text_encoder.eval()
-    netG.eval()
-
     # generate noise
     num_noise = 100
     noise = torch.FloatTensor(num_noise, 100)
@@ -214,6 +203,18 @@ def main(args):
     noise.data.normal_(0, 1)
     sent_emb = sent_emb.repeat(num_noise, 1)
     words_embs = words_embs.repeat(num_noise, 1, 1)
+
+    # use gpu or not, change model to evaluation mode
+    if args.use_gpu:
+        text_encoder.cuda()
+        netG.cuda()
+        caption_idx.cuda()
+        caption_len.cuda()
+        noise.cuda()
+
+    text_encoder.eval()
+    netG.eval()
+
     with torch.no_grad():
         fake_imgs, fusion_mask = netG(noise, sent_emb)
 

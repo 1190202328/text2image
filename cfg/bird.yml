@@ -11,22 +11,22 @@ RESTORE: False
 loss: 'hinge'
 
 TREE:
-    BRANCH_NUM: 1
-    BASE_SIZE: 256
+  BRANCH_NUM: 1
+  BASE_SIZE: 256
 
 
 TRAIN:
-    NF: 64 # default 64
-    BATCH_SIZE: 24 #24
-    MAX_EPOCH: 600
-    NET_G: '' # when validation, put the path of the trained model here
-    WARMUP_EPOCHS: 100
-    GSAVE_INTERVAL: 10
-    DSAVE_INTERVAL: 10
+  NF: 64 # default 64
+  BATCH_SIZE: 24 #24
+  MAX_EPOCH: 600
+  NET_G: './saved_model/OneDrive-2022-05-29/fixed/cub/netG_590.pth' # when validation, put the path of the trained model here
+  WARMUP_EPOCHS: 100
+  GSAVE_INTERVAL: 10
+  DSAVE_INTERVAL: 10
 
 
 TEXT:
-    EMBEDDING_DIM: 256
-    CAPTIONS_PER_IMAGE: 10
-    DAMSM_NAME: 'DAMSMencoders/bird/text_encoder200.pth'
+  EMBEDDING_DIM: 256
+  CAPTIONS_PER_IMAGE: 10
+  DAMSM_NAME: 'DAMSMencoders/bird/text_encoder200.pth'
 

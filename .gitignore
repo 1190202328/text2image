@@ -38,3 +38,4 @@ roi_layers.egg-info/
 *.h5
 
 slurm*.sh
+/related_papers/

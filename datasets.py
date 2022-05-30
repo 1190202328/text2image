@@ -12,7 +12,6 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-
 from nltk.tokenize import RegexpTokenizer
 from collections import defaultdict
 from miscc.config import cfg
@@ -28,6 +27,7 @@ import numpy as np
 import pandas as pd
 from PIL import Image
 import numpy.random as random
+
 if sys.version_info[0] == 2:
     import cPickle as pickle
 else:
@@ -121,7 +121,7 @@ class TextDataset(data.Dataset):
         split_dir = os.path.join(data_dir, split)
 
         self.filenames, self.captions, self.ixtoword, \
-            self.wordtoix, self.n_words = self.load_text_data(data_dir, split)
+        self.wordtoix, self.n_words = self.load_text_data(data_dir, split)
 
         self.class_id = self.load_class_id(split_dir, len(self.filenames))
         self.number_example = len(self.filenames)
@@ -266,6 +266,7 @@ class TextDataset(data.Dataset):
 
     def load_filenames(self, data_dir, split):
         filepath = '%s/%s/filenames.pickle' % (data_dir, split)
+        print(filepath)
         if os.path.isfile(filepath):
             with open(filepath, 'rb') as f:
                 filenames = pickle.load(f)
@@ -304,7 +305,7 @@ class TextDataset(data.Dataset):
             data_dir = '%s/CUB_200_2011/images' % self.data_dir
         else:
             bbox = None
-            #data_dir = self.data_dir
+            # data_dir = self.data_dir
             if self.split_name == 'train':
                 data_dir = '/data/scene_understanding/coco2014/train2014'
             else:

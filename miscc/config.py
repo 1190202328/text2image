@@ -26,7 +26,8 @@ __C.CUDA = True
 __C.WORKERS = 6  # 加载数据线程数
 
 __C.RNN_TYPE = 'LSTM'  # 'GRU'
-__C.B_VALIDATION = False
+__C.B_VALIDATION = True  # 是否验证（是，则不训练）
+# __C.B_VALIDATION = False  # 是否验证（是，则不训练）
 __C.RESTORE = False
 __C.USE_SN = False
 __C.loss = 'hinge'
@@ -45,7 +46,7 @@ __C.TRAIN.ENCODER_LR = 2e-4
 __C.TRAIN.RNN_GRAD_CLIP = 0.25
 __C.TRAIN.FLAG = True
 __C.TRAIN.NET_E = ''
-__C.TRAIN.NET_G = ''
+__C.TRAIN.NET_G = './saved_model/OneDrive-2022-05-29/fixed/cub/netG_590.pth'
 __C.TRAIN.B_NET_D = True
 __C.TRAIN.NF = 32
 __C.TRAIN.SMOOTH = edict()
@@ -111,6 +112,6 @@ def cfg_from_file(filename):
     """Load a config file and merge it into the default options."""
     import yaml
     with open(filename, 'r') as f:
-        yaml_cfg = edict(yaml.load(f))
+        yaml_cfg = edict(yaml.safe_load(f))
 
     _merge_a_into_b(yaml_cfg, __C)

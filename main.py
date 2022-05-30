@@ -175,16 +175,26 @@ def gen_sample(text_encoder, netG, device, wordtoix):
     caption length should be no longer than 18 words.
     example captions see below
     """
-    captions = ['A colorful blue bird has wings with dark stripes and small eyes',
-                'A colorful green bird has wings with dark stripes and small eyes',
-                'A colorful white bird has wings with dark stripes and small eyes',
-                'A colorful black bird has wings with dark stripes and small eyes',
-                'A colorful pink bird has wings with dark stripes and small eyes',
-                'A colorful orange bird has wings with dark stripes and small eyes',
-                'A colorful brown bird has wings with dark stripes and small eyes',
-                'A colorful red bird has wings with dark stripes and small eyes',
-                'A colorful yellow bird has wings with dark stripes and small eyes',
-                'A colorful purple bird has wings with dark stripes and small eyes']
+    # captions = ['A colorful blue bird has wings with dark stripes and small eyes',
+    #             'A colorful green bird has wings with dark stripes and small eyes',
+    #             'A colorful white bird has wings with dark stripes and small eyes',
+    #             'A colorful black bird has wings with dark stripes and small eyes',
+    #             'A colorful pink bird has wings with dark stripes and small eyes',
+    #             'A colorful orange bird has wings with dark stripes and small eyes',
+    #             'A colorful brown bird has wings with dark stripes and small eyes',
+    #             'A colorful red bird has wings with dark stripes and small eyes',
+    #             'A colorful yellow bird has wings with dark stripes and small eyes',
+    #             'A colorful purple bird has wings with dark stripes and small eyes']
+    captions = ['A blue bird has wings with dark stripes and small eyes',
+                'A green bird has wings with dark stripes and small eyes',
+                'A white bird has wings with dark stripes and small eyes',
+                'A black bird has wings with dark stripes and small eyes',
+                'A pink bird has wings with dark stripes and small eyes',
+                'A orange bird has wings with dark stripes and small eyes',
+                'A brown bird has wings with dark stripes and small eyes',
+                'A red bird has wings with dark stripes and small eyes',
+                'A yellow bird has wings with dark stripes and small eyes',
+                'A purple bird has wings with dark stripes and small eyes']
 
     # captions = ['A herd of black and white cattle standing on a field',
     #  'A herd of black cattle standing on a field',
@@ -225,9 +235,14 @@ def gen_sample(text_encoder, netG, device, wordtoix):
     batch_size = len(captions)
     s_tmp = model_dir[:model_dir.rfind('.pth')]
     fake_img_save_dir = '%s/%s' % (s_tmp, split_dir)
+    if os.path.exists(fake_img_save_dir):
+        for path in os.listdir(fake_img_save_dir):
+            os.remove('{}/{}'.format(fake_img_save_dir, path))
+        os.removedirs(fake_img_save_dir)
+    print('saved pictures at [{}]'.format(fake_img_save_dir))
     mkdir_p(fake_img_save_dir)
 
-    for step in range(50):
+    for step in range(5):
 
         hidden = text_encoder.init_hidden(batch_size)
         words_embs, sent_emb = text_encoder(caps, caps_lens, hidden)
@@ -241,7 +256,7 @@ def gen_sample(text_encoder, netG, device, wordtoix):
             # noise = noise.repeat(batch_size, 1)
             # use different noise
             noise = []
-            for i in batch_size:
+            for i in range(batch_size):
                 noise.append(torch.randn(1, 100))
             noise = torch.cat(noise, 0)
 
@@ -262,7 +277,7 @@ def gen_sample(text_encoder, netG, device, wordtoix):
             im = np.transpose(im, (1, 2, 0))
             im = Image.fromarray(im)
             # fullpath = '%s_%3d.png' % (s_tmp,i)
-            fullpath = '%s_%d.png' % (s_tmp, step)
+            fullpath = '%s_%d_%s.png' % (s_tmp, j, captions[j])
             im.save(fullpath)
 
             # save fusion mask
@@ -276,7 +291,7 @@ def gen_sample(text_encoder, netG, device, wordtoix):
             im = np.transpose(im, (1, 2, 0))
             im = np.squeeze(im, axis=2)
             im = Image.fromarray(im)
-            fullpath = '%s_%d.png' % (s_tmp, step)
+            fullpath = '%s_%d_%s.png' % (s_tmp, j, captions[j])
             im.save(fullpath)
 
 
@@ -554,8 +569,8 @@ if __name__ == "__main__":
     optimizerD = torch.optim.Adam(netD.parameters(), lr=0.0004, betas=(0.0, 0.9))
 
     if cfg.B_VALIDATION:
-        sampling(text_encoder, netG, dataloader, ixtoword, device)  # generate images for the whole valid dataset
-        # gen_sample(text_encoder, netG, device, wordtoix) # generate images with description from user
+        # sampling(text_encoder, netG, dataloader, ixtoword, device)  # generate images for the whole valid dataset
+        gen_sample(text_encoder, netG, device, wordtoix)  # generate images with description from user
     else:
         train(dataloader, ixtoword, netG, netD, text_encoder, image_encoder, optimizerG, optimizerD, state_epoch,
               batch_size, device)
