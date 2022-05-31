@@ -322,7 +322,7 @@ def cap2img(ixtoword, caps, cap_lens):
     return imgs
 
 
-def write_images_losses(writer, imgs, fake_imgs, errD, d_loss, errG, DAMSM, epoch):
+def write_images_losses(writer, imgs, fake_imgs, cap_imgs, errD, d_loss, errG, DAMSM, epoch):
     index = epoch
     writer.add_scalar('errD/d_loss', errD, index)
     writer.add_scalar('errD/MAGP', d_loss, index)
@@ -334,7 +334,8 @@ def write_images_losses(writer, imgs, fake_imgs, errD, d_loss, errG, DAMSM, epoc
     imgs_256_print = imagenet_deprocess_batch(fake_imgs)
     writer.add_image('images/img1_pred', torchvision.utils.make_grid(imgs_256_print, normalize=True, scale_each=True),
                      index)
-    # writer.add_image('images/img2_caption', torchvision.utils.make_grid(cap_imgs, normalize=True, scale_each=True), index)
+    writer.add_image('images/img2_caption', torchvision.utils.make_grid(cap_imgs, normalize=True, scale_each=True),
+                     index)
     writer.add_image('images/img3_real', torchvision.utils.make_grid(imgs_print, normalize=True, scale_each=True),
                      index)
 
@@ -470,8 +471,7 @@ def train(dataloader, ixtoword, netG, netD, text_encoder, image_encoder,
 
         # caption can be converted to image and shown in tensorboard
         cap_imgs = cap2img(ixtoword, captions, cap_lens)
-
-        write_images_losses(writer, imgs, fake, errD, d_loss, errG, DAMSM, epoch)
+        write_images_losses(writer, imgs, fake, cap_imgs, errD, d_loss, errG, DAMSM, epoch)
 
         if (epoch >= cfg.TRAIN.WARMUP_EPOCHS) and (epoch % cfg.TRAIN.GSAVE_INTERVAL == 0):
             torch.save(netG.state_dict(), '%s/models/netG_%03d.pth' % (base_dir, epoch))
@@ -576,7 +576,8 @@ if __name__ == "__main__":
     print('Load image encoder from:', img_encoder_path)
     image_encoder.eval()
 
-    state_epoch = 0
+    # state_epoch = 0
+    state_epoch = 550  # 初始epoch，使用./saved_model/OneDrive-2022-05-29/finetune/cub/netG_550.pth预训练模型
 
     optimizerG = torch.optim.Adam(netG.parameters(), lr=0.0001, betas=(0.0, 0.9))
     optimizerD = torch.optim.Adam(netD.parameters(), lr=0.0004, betas=(0.0, 0.9))
