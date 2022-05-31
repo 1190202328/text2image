@@ -171,7 +171,7 @@ def cap2img(ixtoword, caps, cap_lens, save_dir=None):
         caption = " ".join(caption)
         caption_line = " ".join(caption_line)
         f.writelines(caption_line)
-        fig = plt.figure(figsize=(2.5, 1.5))
+        fig = plt.figure(figsize=(2.56, 2.56))
         plt.axis("off")
         plt.text(0.5, 0.5, caption)
         plt.xlim(0, 10)
