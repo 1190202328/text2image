@@ -33,5 +33,6 @@ TRAIN:
 TEXT:
   EMBEDDING_DIM: 256
   CAPTIONS_PER_IMAGE: 10
-  DAMSM_NAME: 'DAMSMencoders/bird/text_encoder200.pth'
+  #  DAMSM_NAME: 'DAMSMencoders/bird/text_encoder200.pth'
+  DAMSM_NAME: 'saved_model/OneDrive-2022-05-29/finetune/cub/text_encoder_550.pth' #pretrain_model
 

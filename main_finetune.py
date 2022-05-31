@@ -40,7 +40,7 @@ from miscc.utils import imagenet_deprocess_batch
 from miscc.config import cfg, cfg_from_file
 from miscc.losses import DAMSM_loss
 from sync_batchnorm import DataParallelWithCallback
-#from datasets_everycap import TextDataset
+# from datasets_everycap import TextDataset
 from datasets import TextDataset
 from datasets import prepare_data
 from DAMSM import RNN_ENCODER, CNN_ENCODER
@@ -50,7 +50,6 @@ dir_path = (os.path.abspath(os.path.join(os.path.realpath(__file__), './.')))
 sys.path.append(dir_path)
 
 multiprocessing.set_start_method('spawn', True)
-
 
 UPDATE_INTERVAL = 200
 
@@ -91,7 +90,7 @@ def sampling(text_encoder, netG, dataloader, ixtoword, device):
         text_encoder_dir = text_encoder_dir.replace(str(start_epoch), str(num_epoch))
         start_epoch = num_epoch
 
-        #split_dir = 'valid'
+        # split_dir = 'valid'
         split_dir = 'test_every'
         # Build and load the generator
         netG.load_state_dict(torch.load(model_dir))
@@ -100,12 +99,12 @@ def sampling(text_encoder, netG, dataloader, ixtoword, device):
         text_encoder.eval()
 
         batch_size = cfg.TRAIN.BATCH_SIZE
-        #s_tmp = model_dir
+        # s_tmp = model_dir
         s_tmp = model_dir[:model_dir.rfind('.pth')]
         s_tmp_dir = s_tmp
         img_save_dir = '%s/%s' % (s_tmp, split_dir)
         mkdir_p(img_save_dir)
-        #cap_save_dir = '%s/%s' % (s_tmp, 'caps')
+        # cap_save_dir = '%s/%s' % (s_tmp, 'caps')
         # mkdir_p(cap_save_dir)
         idx = 0
         cnt = 0
@@ -124,7 +123,7 @@ def sampling(text_encoder, netG, dataloader, ixtoword, device):
                 words_embs, sent_emb = words_embs.detach(), sent_emb.detach()
 
                 # code for generating captions
-                #cap_imgs = cap2img(ixtoword, captions, cap_lens, s_tmp_dir)
+                # cap_imgs = cap2img(ixtoword, captions, cap_lens, s_tmp_dir)
 
                 #######################################################
                 # (2) Generate fake images
@@ -134,7 +133,7 @@ def sampling(text_encoder, netG, dataloader, ixtoword, device):
                     noise = noise.to(device)
                     fake_imgs, _ = netG(noise, sent_emb)
                 for j in range(batch_size):
-                    #s_tmp = '%s/single/%s' % (save_dir, keys[j])
+                    # s_tmp = '%s/single/%s' % (save_dir, keys[j])
                     s_tmp = '%s/single' % (img_save_dir)
                     folder = s_tmp[:s_tmp.rfind('/')]
                     if not os.path.isdir(folder):
@@ -147,7 +146,7 @@ def sampling(text_encoder, netG, dataloader, ixtoword, device):
                     im = np.transpose(im, (1, 2, 0))
                     im = Image.fromarray(im)
                     idx += 1
-                    #fullpath = '%s_%3d.png' % (s_tmp,i)
+                    # fullpath = '%s_%3d.png' % (s_tmp,i)
                     fullpath = '%s_s%d.png' % (s_tmp, idx)
                     im.save(fullpath)
 
@@ -190,7 +189,7 @@ def cap2img(ixtoword, caps, cap_lens, save_dir=None):
     return imgs
 
 
-def write_images_losses(writer, imgs, fake_imgs, errD, d_loss, DAMSM_D, errG, DAMSM_G, epoch):
+def write_images_losses(writer, imgs, fake_imgs, cap_imgs, errD, d_loss, DAMSM_D, errG, DAMSM_G, epoch):
     index = epoch
     writer.add_scalar('errD/d_loss', errD, index)
     writer.add_scalar('errD/MAGP', d_loss, index)
@@ -198,12 +197,31 @@ def write_images_losses(writer, imgs, fake_imgs, errD, d_loss, DAMSM_D, errG, DA
     writer.add_scalar('errG/g_loss', errG, index)
     writer.add_scalar('errG/DAMSM', DAMSM_G, index)
     imgs_print = imagenet_deprocess_batch(imgs)
-    #imgs_64_print = imagenet_deprocess_batch(fake_imgs[0])
-    #imgs_128_print = imagenet_deprocess_batch(fake_imgs[1])
+
     imgs_256_print = imagenet_deprocess_batch(fake_imgs)
-    writer.add_image('images/img1_pred', torchvision.utils.make_grid(imgs_256_print, normalize=True, scale_each=True), index)
-    #writer.add_image('images/img2_caption', torchvision.utils.make_grid(cap_imgs, normalize=True, scale_each=True), index)
-    writer.add_image('images/img3_real', torchvision.utils.make_grid(imgs_print, normalize=True, scale_each=True), index)
+    show_img = torch.concat([imgs_256_print, cap_imgs, imgs_print], dim=0)
+    writer.add_image('images/img_pred_caption_real',
+                     torchvision.utils.make_grid(show_img, nrow=cap_imgs.shape[0], normalize=True, scale_each=True),
+                     index)
+
+
+def write_images_losses_batch(writer, errD, d_loss, DAMSM_D, errG, DAMSM_G, batch):
+    index = batch
+    writer.add_scalar('errD_batch/d_loss', errD, index)
+    writer.add_scalar('errD_batch/MAGP', d_loss, index)
+    writer.add_scalar('errD_batch/DAMSM', DAMSM_D, index)
+    writer.add_scalar('errG_batch/g_loss', errG, index)
+    writer.add_scalar('errG_batch/DAMSM', DAMSM_G, index)
+
+
+def write_images_fixed(writer, imgs, fake_imgs, cap_imgs, epoch):
+    index = epoch
+    imgs_print = imagenet_deprocess_batch(imgs)
+    imgs_256_print = imagenet_deprocess_batch(fake_imgs)
+    show_img = torch.concat([imgs_256_print, cap_imgs, imgs_print], dim=0)
+    writer.add_image('images/img_pred_caption_real_fixed',
+                     torchvision.utils.make_grid(show_img, nrow=cap_imgs.shape[0], normalize=True, scale_each=True),
+                     index)
 
 
 def mkdir_p(path):
@@ -231,6 +249,7 @@ def prepare_labels(batch_size):
 
 def train(dataloader, ixtoword, netG, netD, text_encoder, image_encoder,
           optimizerG, optimizerD, optimizerEncoder, state_epoch, batch_size, device):
+    show_train = None  # 用于可视化固定的一批数据（方便每个epoch进行观察）
     base_dir = os.path.join('tmp', cfg.CONFIG_NAME, str(cfg.TRAIN.NF))
 
     if not cfg.RESTORE:
@@ -262,6 +281,7 @@ def train(dataloader, ixtoword, netG, netD, text_encoder, image_encoder,
     for epoch in tqdm(range(state_epoch + 1, cfg.TRAIN.MAX_EPOCH + 1)):
         data_iter = iter(dataloader)
         # for step, data in enumerate(dataloader, 0):
+        batch_total_len = len(data_iter)
         for step in tqdm(range(len(data_iter))):
             data = data_iter.next()
 
@@ -284,6 +304,12 @@ def train(dataloader, ixtoword, netG, netD, text_encoder, image_encoder,
             noise = torch.randn(batch_size, 100)
             noise = noise.to(device)
             fake, _ = netG(noise, sent_emb_de)
+
+            # caption can be converted to image and shown in tensorboard
+            cap_imgs = cap2img(ixtoword, captions, cap_lens)
+            # 存储第一次取的数据作为固定的观察图片
+            if show_train is None:
+                show_train = [imgs, noise, captions, cap_lens, hidden, cap_imgs]
 
             # update encoder
             DAMSM_D = DAMSM_loss(image_encoder, imgs, real_labels, words_embs,
@@ -335,9 +361,19 @@ def train(dataloader, ixtoword, netG, netD, text_encoder, image_encoder,
             errG_total.backward()
             optimizerG.step()
 
-        #cap_imgs = cap2img(ixtoword, captions, cap_lens)
-        #write_images_losses(writer, cap_imgs, imgs, fake, errD, d_loss, DAMSM_D, errG, DAMSM_G, epoch)
+            if step % int(batch_total_len / 10) == 0:
+                # 每个epoch保存10次
+                write_images_losses_batch(writer, errD, d_loss, DAMSM_D, errG, DAMSM_G, epoch * batch_total_len + step)
+
+        # 存入loss以及随机的数据
         write_images_losses(writer, imgs, fake, errD, d_loss, DAMSM_D, errG, DAMSM_G, epoch)
+        # 存入固定的数据
+        with torch.no_grad():
+            imgs, noise, captions, cap_lens, hidden, cap_imgs = show_train
+            _, sent_emb = text_encoder(captions, cap_lens, hidden)
+            sent_emb = sent_emb.detach()
+            fake, _ = netG(noise, sent_emb)
+            write_images_fixed(writer, imgs, fake, cap_imgs, epoch)
 
         if (epoch >= cfg.TRAIN.WARMUP_EPOCHS) and (epoch % cfg.TRAIN.GSAVE_INTERVAL == 0) and (epoch % 10 != 0):
             torch.save(netG.state_dict(), '%s/models/netG_%03d.pth' % (base_dir, epoch))
@@ -345,8 +381,6 @@ def train(dataloader, ixtoword, netG, netD, text_encoder, image_encoder,
         if (epoch >= cfg.TRAIN.WARMUP_EPOCHS) and (epoch % cfg.TRAIN.DSAVE_INTERVAL == 0):
             torch.save(netD.state_dict(), '%s/models/netD_%03d.pth' % (base_dir, epoch))
             torch.save(image_encoder.state_dict(), '%s/models/image_encoder_%03d.pth' % (base_dir, epoch))
-    count = 0
-    return count
 
 
 if __name__ == "__main__":
@@ -368,7 +402,7 @@ if __name__ == "__main__":
         args.manualSeed = 100
     elif args.manualSeed is None:
         args.manualSeed = 100
-        #args.manualSeed = random.randint(1, 10000)
+        # args.manualSeed = random.randint(1, 10000)
     print("seed now is : ", args.manualSeed)
     random.seed(args.manualSeed)
     np.random.seed(args.manualSeed)
@@ -380,7 +414,7 @@ if __name__ == "__main__":
     now = datetime.datetime.now(dateutil.tz.tzlocal())
     timestamp = now.strftime('%Y_%m_%d_%H_%M_%S')
     output_dir = '../output/%s_%s_%s' % \
-        (cfg.DATASET_NAME, cfg.CONFIG_NAME, timestamp)
+                 (cfg.DATASET_NAME, cfg.CONFIG_NAME, timestamp)
 
     # Kai: i don't want to specify a gpu id
     # torch.cuda.set_device(cfg.GPU_ID)
@@ -444,14 +478,14 @@ if __name__ == "__main__":
                 encoder_parameters.append(v)
         optimizerEncoder = torch.optim.Adam(encoder_parameters, lr=0.00004, betas=(0.0, 0.9))
 
-    state_epoch = 0
+    state_epoch = 550  # 初始epoch，使用./saved_model/OneDrive-2022-05-29/finetune/cub/netG_550.pth预训练模型
 
     optimizerG = torch.optim.Adam(netG.parameters(), lr=0.0001, betas=(0.0, 0.9))
     optimizerD = torch.optim.Adam(netD.parameters(), lr=0.0004, betas=(0.0, 0.9))
 
     if cfg.B_VALIDATION:
-        count = sampling(text_encoder, netG, dataloader, ixtoword, device)  # generate images for the whole valid dataset
+        sampling(text_encoder, netG, dataloader, ixtoword, device)
         print('state_epoch:  %d' % (state_epoch))
     else:
-
-        count = train(dataloader, ixtoword, netG, netD, text_encoder, image_encoder, optimizerG, optimizerD, optimizerEncoder, state_epoch, batch_size, device)
+        train(dataloader, ixtoword, netG, netD, text_encoder, image_encoder, optimizerG, optimizerD, optimizerEncoder,
+              state_epoch, batch_size, device)
