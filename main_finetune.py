@@ -366,7 +366,7 @@ def train(dataloader, ixtoword, netG, netD, text_encoder, image_encoder,
                 write_images_losses_batch(writer, errD, d_loss, DAMSM_D, errG, DAMSM_G, epoch * batch_total_len + step)
 
         # 存入loss以及随机的数据
-        write_images_losses(writer, imgs, fake, errD, d_loss, DAMSM_D, errG, DAMSM_G, epoch)
+        write_images_losses(writer, imgs, fake, cap_imgs, errD, d_loss, DAMSM_D, errG, DAMSM_G, epoch)
         # 存入固定的数据
         with torch.no_grad():
             imgs, noise, captions, cap_lens, hidden, cap_imgs = show_train
