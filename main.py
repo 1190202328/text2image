@@ -339,6 +339,14 @@ def write_images_losses(writer, imgs, fake_imgs, errD, d_loss, errG, DAMSM, epoc
                      index)
 
 
+def write_images_losses_batch(writer, errD, d_loss, errG, DAMSM, batch_index):
+    index = batch_index
+    writer.add_scalar('errD_batch/d_loss', errD, index)
+    writer.add_scalar('errD_batch/MAGP', d_loss, index)
+    writer.add_scalar('errG_batch/g_loss', errG, index)
+    writer.add_scalar('errG_batch/DAMSM', DAMSM, index)
+
+
 def mkdir_p(path):
     try:
         os.makedirs(path)
@@ -389,6 +397,7 @@ def train(dataloader, ixtoword, netG, netD, text_encoder, image_encoder,
     for epoch in tqdm(range(state_epoch + 1, cfg.TRAIN.MAX_EPOCH + 1)):
         data_iter = iter(dataloader)
         # for step, data in enumerate(dataloader, 0):
+        batch_total_len = len(data_iter)
         for step in tqdm(range(len(data_iter))):
             data = data_iter.next()
 
@@ -455,8 +464,12 @@ def train(dataloader, ixtoword, netG, netD, text_encoder, image_encoder,
             errG_total.backward()
             optimizerG.step()
 
+            if step % int(batch_total_len / 10) == 0:
+                # 每个epoch保存10次
+                write_images_losses_batch(writer, errD, d_loss, errG, DAMSM, epoch * batch_total_len + step)
+
         # caption can be converted to image and shown in tensorboard
-        # cap_imgs = cap2img(ixtoword, captions, cap_lens)
+        cap_imgs = cap2img(ixtoword, captions, cap_lens)
 
         write_images_losses(writer, imgs, fake, errD, d_loss, errG, DAMSM, epoch)
 
