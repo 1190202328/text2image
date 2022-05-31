@@ -305,7 +305,7 @@ def cap2img(ixtoword, caps, cap_lens):
             if i % 4 == 0 and i > 0:
                 caption.append("\n")
         caption = " ".join(caption)
-        fig = plt.figure(figsize=(2.5, 1.5))
+        fig = plt.figure(figsize=(2.56, 2.56))
         plt.axis("off")
         plt.text(0.5, 0.5, caption)
         plt.xlim(0, 10)
@@ -332,11 +332,25 @@ def write_images_losses(writer, imgs, fake_imgs, cap_imgs, errD, d_loss, errG, D
     # imgs_64_print = imagenet_deprocess_batch(fake_imgs[0])
     # imgs_128_print = imagenet_deprocess_batch(fake_imgs[1])
     imgs_256_print = imagenet_deprocess_batch(fake_imgs)
-    writer.add_image('images/img1_pred', torchvision.utils.make_grid(imgs_256_print, normalize=True, scale_each=True),
+    show_img = torch.concat([imgs_256_print, cap_imgs, imgs_print], dim=0)
+    writer.add_image('images/img_pred_caption_real',
+                     torchvision.utils.make_grid(show_img, nrow=cap_imgs.shape[0], normalize=True, scale_each=True),
                      index)
-    writer.add_image('images/img2_caption', torchvision.utils.make_grid(cap_imgs, normalize=True, scale_each=True),
-                     index)
-    writer.add_image('images/img3_real', torchvision.utils.make_grid(imgs_print, normalize=True, scale_each=True),
+    # writer.add_image('images/img1_pred', torchvision.utils.make_grid(imgs_256_print, normalize=True, scale_each=True),
+    #                  index)
+    # writer.add_image('images/img2_caption', torchvision.utils.make_grid(cap_imgs, normalize=True, scale_each=True),
+    #                  index)
+    # writer.add_image('images/img3_real', torchvision.utils.make_grid(imgs_print, normalize=True, scale_each=True),
+    #                  index)
+
+
+def write_images_fixed(writer, imgs, fake_imgs, cap_imgs, epoch):
+    index = epoch
+    imgs_print = imagenet_deprocess_batch(imgs)
+    imgs_256_print = imagenet_deprocess_batch(fake_imgs)
+    show_img = torch.concat([imgs_256_print, cap_imgs, imgs_print], dim=0)
+    writer.add_image('images/img_pred_caption_real_fixed',
+                     torchvision.utils.make_grid(show_img, nrow=cap_imgs.shape[0], normalize=True, scale_each=True),
                      index)
 
 
@@ -373,6 +387,7 @@ def prepare_labels(batch_size):
 
 def train(dataloader, ixtoword, netG, netD, text_encoder, image_encoder,
           optimizerG, optimizerD, state_epoch, batch_size, device):
+    show_train = None  # 用于可视化固定的一批数据（方便每个epoch进行观察）
     base_dir = os.path.join('tmp', cfg.CONFIG_NAME, str(cfg.TRAIN.NF))
 
     if not cfg.RESTORE:
@@ -422,6 +437,12 @@ def train(dataloader, ixtoword, netG, netD, text_encoder, image_encoder,
             noise = noise.to(device)
             fake, _ = netG(noise, sent_emb)
 
+            # caption can be converted to image and shown in tensorboard
+            cap_imgs = cap2img(ixtoword, captions, cap_lens)
+            # 存储第一次取的数据作为固定的观察图片
+            if show_train is None:
+                show_train = [imgs, noise, captions, cap_lens, hidden, cap_imgs]
+
             # G does not need update with D
             fake_features = netD(fake.detach())
 
@@ -469,9 +490,15 @@ def train(dataloader, ixtoword, netG, netD, text_encoder, image_encoder,
                 # 每个epoch保存10次
                 write_images_losses_batch(writer, errD, d_loss, errG, DAMSM, epoch * batch_total_len + step)
 
-        # caption can be converted to image and shown in tensorboard
-        cap_imgs = cap2img(ixtoword, captions, cap_lens)
+        # 存入loss以及随机的数据
         write_images_losses(writer, imgs, fake, cap_imgs, errD, d_loss, errG, DAMSM, epoch)
+        # 存入固定的数据
+        with torch.no_grad():
+            imgs, noise, captions, cap_lens, hidden, cap_imgs = show_train
+            _, sent_emb = text_encoder(captions, cap_lens, hidden)
+            sent_emb = sent_emb.detach()
+            fake, _ = netG(noise, sent_emb)
+            write_images_fixed(writer, imgs, fake, cap_imgs, epoch)
 
         if (epoch >= cfg.TRAIN.WARMUP_EPOCHS) and (epoch % cfg.TRAIN.GSAVE_INTERVAL == 0):
             torch.save(netG.state_dict(), '%s/models/netG_%03d.pth' % (base_dir, epoch))
