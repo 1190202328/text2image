@@ -72,6 +72,7 @@ def sampling(text_encoder, netG, dataloader, ixtoword, device):
     istart = cfg.TRAIN.NET_G.rfind('_') + 1
     iend = cfg.TRAIN.NET_G.rfind('.')
     start_epoch = int(cfg.TRAIN.NET_G[istart:iend])
+    print(start_epoch)
 
     '''
     for path_count in range(11):
@@ -85,7 +86,8 @@ def sampling(text_encoder, netG, dataloader, ixtoword, device):
         
     '''
 
-    for num_epoch in [600]:
+    for num_epoch in [550]:
+        print(f'start evaluating model <{model_dir}>')
         model_dir = model_dir.replace(str(start_epoch), str(num_epoch))
         text_encoder_dir = text_encoder_dir.replace(str(start_epoch), str(num_epoch))
         start_epoch = num_epoch

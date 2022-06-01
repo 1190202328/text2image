@@ -6,8 +6,8 @@ GPU_ID: 0
 WORKERS: 1
 
 
-#B_VALIDATION: True # 是否开启验证模式
-B_VALIDATION: False
+B_VALIDATION: True # 是否开启验证模式
+#B_VALIDATION: False
 #RESTORE: False
 RESTORE: True # 是否继续训练
 loss: 'hinge'
