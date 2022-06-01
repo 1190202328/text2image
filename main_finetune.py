@@ -305,10 +305,10 @@ def train(dataloader, ixtoword, netG, netD, text_encoder, image_encoder,
             noise = noise.to(device)
             fake, _ = netG(noise, sent_emb_de)
 
-            # caption can be converted to image and shown in tensorboard
-            cap_imgs = cap2img(ixtoword, captions, cap_lens)
             # 存储第一次取的数据作为固定的观察图片
             if show_train is None:
+                # caption can be converted to image and shown in tensorboard
+                cap_imgs = cap2img(ixtoword, captions, cap_lens)
                 show_train = [imgs, noise, captions, cap_lens, hidden, cap_imgs]
 
             # update encoder
@@ -363,10 +363,14 @@ def train(dataloader, ixtoword, netG, netD, text_encoder, image_encoder,
 
             if step % int(batch_total_len / 10) == 0:
                 # 每个epoch保存10次
-                write_images_losses_batch(writer, errD, d_loss, DAMSM_D, errG, DAMSM_G, epoch * batch_total_len + step)
+                write_images_losses_batch(writer, errD.item(), d_loss.item(), DAMSM_D.item(), errG.item(),
+                                          DAMSM_G.item(), epoch * batch_total_len + step)
 
+        # caption can be converted to image and shown in tensorboard
+        cap_imgs = cap2img(ixtoword, captions, cap_lens)
         # 存入loss以及随机的数据
-        write_images_losses(writer, imgs, fake, cap_imgs, errD, d_loss, DAMSM_D, errG, DAMSM_G, epoch)
+        write_images_losses(writer, imgs, fake, cap_imgs, errD.item(), d_loss.item(), DAMSM_D.item(), errG.item(),
+                            DAMSM_G.item(), epoch)
         # 存入固定的数据
         with torch.no_grad():
             imgs, noise, captions, cap_lens, hidden, cap_imgs = show_train
