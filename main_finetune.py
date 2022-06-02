@@ -73,6 +73,7 @@ def sampling(text_encoder, netG, dataloader, ixtoword, device):
     iend = cfg.TRAIN.NET_G.rfind('.')
     start_epoch = int(cfg.TRAIN.NET_G[istart:iend])
     print(start_epoch)
+    # raise Exception
 
     '''
     for path_count in range(11):
@@ -110,7 +111,7 @@ def sampling(text_encoder, netG, dataloader, ixtoword, device):
         # mkdir_p(cap_save_dir)
         idx = 0
         cnt = 0
-        for i in range(1):  # (cfg.TEXT.CAPTIONS_PER_IMAGE):
+        for i in range(cfg.TEXT.CAPTIONS_PER_IMAGE):
             for step, data in enumerate(dataloader, 0):
                 imags, captions, cap_lens, class_ids, keys = prepare_data(data)
                 cnt += batch_size

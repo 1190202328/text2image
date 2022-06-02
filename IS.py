@@ -15,9 +15,7 @@ import numpy as np
 from six.moves import urllib
 import tensorflow as tf
 import glob
-# from scipy.misc import imread, imresize
-from skimage.transform import resize as imresize
-from skimage.io import imread
+from scipy.misc import imread, imresize
 import math
 import sys
 from tqdm import tqdm, trange
@@ -25,14 +23,19 @@ from tqdm import tqdm, trange
 parser = argparse.ArgumentParser()
 parser.add_argument('--input_npy_file', default=None)
 parser.add_argument('--input_image_dir',
-                    default='./saved_model/OneDrive-2022-05-29/finetune/cub/netG_550/test_every')  # app/coco_no_geo/G180/128_
+                    default='./saved_model/OneDrive-2022-05-29/finetune/cub/netG_550/test_every')
+# ./tmp/bird_sloss01/64/models/netG_595/test_every
+# ./saved_model/OneDrive-2022-05-29/finetune/cub/netG_550/test_every
 parser.add_argument('--input_image_dir_list', default=None)
 parser.add_argument('--input_image_superdir', default=None)
+parser.add_argument('--input_image_superdir_all', default=None)
+# ./data/birds/CUB_200_2011/images 真实数据
 parser.add_argument('--image_size', default=128, type=int)
 
 # Most papers use 50k samples and 10 splits but I don't have that much
 # data so I'll use 3 splits for everything
-parser.add_argument('--num_splits', default=3, type=int)
+# parser.add_argument('--num_splits', default=3, type=int)
+parser.add_argument('--num_splits', default=2, type=int)
 parser.add_argument('--tensor_layout', default='NHWC', choices=['NHWC', 'NCHW'])
 
 IMAGE_EXTS = ['.png', '.jpg', '.jpeg']
@@ -43,7 +46,8 @@ def main(args):
     got_image_dir = args.input_image_dir is not None
     got_image_dir_list = args.input_image_dir_list is not None
     got_image_superdir = args.input_image_superdir is not None
-    inputs = [got_npy_file, got_image_dir, got_image_dir_list, got_image_superdir]
+    got_input_image_superdir_all = args.input_image_superdir_all is not None
+    inputs = [got_npy_file, got_image_dir, got_image_dir_list, got_image_superdir, got_input_image_superdir_all]
     if sum(inputs) != 1:
         raise ValueError('Must give exactly one input type')
 
@@ -78,6 +82,15 @@ def main(args):
             print('Inception mean: ', mean)
             print('Inception std: ', std)
             print()
+    elif args.input_image_superdir_all is not None:
+        images = []
+        for fn in sorted(os.listdir(args.input_image_superdir_all)):
+            image_dir = os.path.join(args.input_image_superdir_all, fn)
+            images += load_images(args, image_dir)
+        mean, std = get_inception_score(args, images)
+        print('Inception mean: ', mean)
+        print('Inception std: ', std)
+        print()
 
 
 def load_images(args, image_dir):

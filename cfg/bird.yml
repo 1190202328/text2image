@@ -24,6 +24,7 @@ TRAIN:
   MAX_EPOCH: 600
   #  NET_G: './saved_model/OneDrive-2022-05-29/fixed/cub/netG_590.pth' # when validation, put the path of the trained model here;fixed_model
   NET_G: './saved_model/OneDrive-2022-05-29/finetune/cub/netG_550.pth' #pretrain_model
+#  NET_G: './tmp/bird_sloss01/64/models/netG_595.pth' #my_model
   #  NET_G: ''
   WARMUP_EPOCHS: 100
   GSAVE_INTERVAL: 5
