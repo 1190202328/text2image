@@ -15,9 +15,9 @@ import numpy as np
 from six.moves import urllib
 import tensorflow as tf
 import glob
-from scipy.misc import imread, imresize
-# from skimage.transform import resize as imresize
-# from skimage.io import imread
+# from scipy.misc import imread, imresize
+from skimage.transform import resize as imresize
+from skimage.io import imread
 import math
 import sys
 from tqdm import tqdm, trange
@@ -25,7 +25,7 @@ from tqdm import tqdm, trange
 parser = argparse.ArgumentParser()
 parser.add_argument('--input_npy_file', default=None)
 parser.add_argument('--input_image_dir',
-                    default='/saved_model/OneDrive-2022-05-29/finetune/cub/netG_550/test_every')  # app/coco_no_geo/G180/128_
+                    default='./saved_model/OneDrive-2022-05-29/finetune/cub/netG_550/test_every')  # app/coco_no_geo/G180/128_
 parser.add_argument('--input_image_dir_list', default=None)
 parser.add_argument('--input_image_superdir', default=None)
 parser.add_argument('--image_size', default=128, type=int)
