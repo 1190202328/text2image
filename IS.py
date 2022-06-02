@@ -23,9 +23,10 @@ from tqdm import tqdm, trange
 parser = argparse.ArgumentParser()
 parser.add_argument('--input_npy_file', default=None)
 parser.add_argument('--input_image_dir',
-                    default='./saved_model/OneDrive-2022-05-29/finetune/cub/netG_550/test_every')
+                    default='./saved_model/OneDrive-2022-05-29/fixed/cub/netG_590/test_every')
 # ./tmp/bird_sloss01/64/models/netG_595/test_every
 # ./saved_model/OneDrive-2022-05-29/finetune/cub/netG_550/test_every
+# ./saved_model/OneDrive-2022-05-29/fixed/cub/netG_590/test_every
 parser.add_argument('--input_image_dir_list', default=None)
 parser.add_argument('--input_image_superdir', default=None)
 parser.add_argument('--input_image_superdir_all', default=None)
@@ -35,7 +36,7 @@ parser.add_argument('--image_size', default=128, type=int)
 # Most papers use 50k samples and 10 splits but I don't have that much
 # data so I'll use 3 splits for everything
 # parser.add_argument('--num_splits', default=3, type=int)
-parser.add_argument('--num_splits', default=2, type=int)
+parser.add_argument('--num_splits', default=6, type=int)
 parser.add_argument('--tensor_layout', default='NHWC', choices=['NHWC', 'NCHW'])
 
 IMAGE_EXTS = ['.png', '.jpg', '.jpeg']

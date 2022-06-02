@@ -87,7 +87,7 @@ def sampling(text_encoder, netG, dataloader, ixtoword, device):
         
     '''
 
-    for num_epoch in [550]:
+    for num_epoch in [590]:
         print(f'start evaluating model <{model_dir}>')
         model_dir = model_dir.replace(str(start_epoch), str(num_epoch))
         text_encoder_dir = text_encoder_dir.replace(str(start_epoch), str(num_epoch))
