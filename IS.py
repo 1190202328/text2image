@@ -31,7 +31,7 @@ parser.add_argument('--input_image_dir_list', default=None)
 parser.add_argument('--input_image_superdir', default=None)
 parser.add_argument('--input_image_superdir_all', default=None)
 # ./data/birds/CUB_200_2011/images 真实数据
-parser.add_argument('--image_size', default=256, type=int)
+parser.add_argument('--image_size', default=128, type=int)
 
 # Most papers use 50k samples and 10 splits but I don't have that much
 # data so I'll use 3 splits for everything
