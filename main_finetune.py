@@ -87,14 +87,14 @@ def sampling(text_encoder, netG, dataloader, ixtoword, device):
         
     '''
 
-    for num_epoch in [590]:
+    for num_epoch in [595]:
         print(f'start evaluating model <{model_dir}>')
         model_dir = model_dir.replace(str(start_epoch), str(num_epoch))
         text_encoder_dir = text_encoder_dir.replace(str(start_epoch), str(num_epoch))
         start_epoch = num_epoch
 
-        # split_dir = 'valid'
-        split_dir = 'test_every'
+        split_dir = 'valid'
+        # split_dir = 'test_every'
         # Build and load the generator
         netG.load_state_dict(torch.load(model_dir))
         netG.eval()
@@ -111,7 +111,8 @@ def sampling(text_encoder, netG, dataloader, ixtoword, device):
         # mkdir_p(cap_save_dir)
         idx = 0
         cnt = 0
-        for i in range(cfg.TEXT.CAPTIONS_PER_IMAGE):
+        # for i in range(cfg.TEXT.CAPTIONS_PER_IMAGE): #test_every
+        for i in range(1):  # valid
             for step, data in enumerate(dataloader, 0):
                 imags, captions, cap_lens, class_ids, keys = prepare_data(data)
                 cnt += batch_size
