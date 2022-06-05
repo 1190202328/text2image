@@ -261,19 +261,19 @@ def gen_sample(text_encoder, netG, device, wordtoix):
             fullpath = '%s_%d_%s.png' % (s_tmp, j, ' '.join(captions[j]))
             im.save(fullpath)
 
-            # save fusion mask
-            s_tmp = '%s/fm' % fake_img_save_dir
-            im = stage_mask[j].data.cpu().numpy()
-            # im = 1-im # only for better visualization
-            # [0, 1] --> [0, 255]
-            im = im * 255.0
-            im = im.astype(np.uint8)
-
-            im = np.transpose(im, (1, 2, 0))
-            im = np.squeeze(im, axis=2)
-            im = Image.fromarray(im)
-            fullpath = '%s_%d_%s.png' % (s_tmp, j, captions[j])
-            im.save(fullpath)
+            # # save fusion mask
+            # s_tmp = '%s/fm' % fake_img_save_dir
+            # im = stage_mask[j].data.cpu().numpy()
+            # # im = 1-im # only for better visualization
+            # # [0, 1] --> [0, 255]
+            # im = im * 255.0
+            # im = im.astype(np.uint8)
+            #
+            # im = np.transpose(im, (1, 2, 0))
+            # im = np.squeeze(im, axis=2)
+            # im = Image.fromarray(im)
+            # fullpath = '%s_%d_%s.png' % (s_tmp, j, ' '.join(captions[j]))
+            # im.save(fullpath)
 
 
 def cap2img(ixtoword, caps, cap_lens):
