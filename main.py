@@ -185,35 +185,16 @@ def gen_sample(text_encoder, netG, device, wordtoix):
     #             'A colorful red bird has wings with dark stripes and small eyes',
     #             'A colorful yellow bird has wings with dark stripes and small eyes',
     #             'A colorful purple bird has wings with dark stripes and small eyes']
-    captions = ['A blue bird has wings with dark stripes and small eyes',
-                'A green bird has wings with dark stripes and small eyes',
-                'A white bird has wings with dark stripes and small eyes',
-                'A black bird has wings with dark stripes and small eyes',
-                'A pink bird has wings with dark stripes and small eyes',
-                'A orange bird has wings with dark stripes and small eyes',
-                'A brown bird has wings with dark stripes and small eyes',
-                'A red bird has wings with dark stripes and small eyes',
-                'A yellow bird has wings with dark stripes and small eyes',
-                'A purple bird has wings with dark stripes and small eyes']
-
-    # captions = ['A herd of black and white cattle standing on a field',
-    #  'A herd of black cattle standing on a field',
-    #  'A herd of white cattle standing on a field',
-    #  'A herd of brown cattle standing on a field',
-    #  'A herd of black and white sheep standing on a field',
-    #  'A herd of black sheep standing on a field',
-    #  'A herd of white sheep standing on a field',
-    #  'A herd of brown sheep standing on a field']
-
-    # captions = ['some horses in a field of green grass with a sky in the background',
-    #  'some horses in a field of yellow grass with a sky in the background',
-    #  'some horses in a field of green grass with a sunset in the background',
-    #  'some horses in a field of yellow grass with a sunset in the background']
+    captions = ['A small bird with an orange bill and grey crown and breast',
+                'The bird has a bright red eye a gray bill and a white neck',
+                'This bird has a long pointed beak with a wide wingspan',
+                'A small bird with a black bill and a fuzzy white crown nape throat and breast']
 
     # caption to idx
     # split string to word
     for c, i in enumerate(captions):
         captions[c] = i.split()
+    captions = sorted(captions, key=lambda x: len(x), reverse=True)
 
     caps = torch.zeros((len(captions), 18), dtype=torch.int64)
 
@@ -228,7 +209,7 @@ def gen_sample(text_encoder, netG, device, wordtoix):
     caps_lens = torch.tensor(cap_len, dtype=torch.int64).to(device)
 
     model_dir = cfg.TRAIN.NET_G
-    split_dir = 'valid'
+    split_dir = 'valid_sample'
     netG.load_state_dict(torch.load(model_dir))
     netG.eval()
 
@@ -277,7 +258,7 @@ def gen_sample(text_encoder, netG, device, wordtoix):
             im = np.transpose(im, (1, 2, 0))
             im = Image.fromarray(im)
             # fullpath = '%s_%3d.png' % (s_tmp,i)
-            fullpath = '%s_%d_%s.png' % (s_tmp, j, captions[j])
+            fullpath = '%s_%d_%s.png' % (s_tmp, j, ' '.join(captions[j]))
             im.save(fullpath)
 
             # save fusion mask
