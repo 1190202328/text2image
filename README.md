@@ -81,7 +81,7 @@ the spatial-semantic aware (SSA) block 结构
 
 
 [Text to Image Generation with Semantic-Spatial Aware GAN]:https://arxiv.org/abs/2104.00567
-[https://github.com/wtliao/text2image]:https://github.com/wtliao/text2images
+[https://github.com/wtliao/text2image]:https://github.com/wtliao/text2image
 [birds_caption_data]:https://drive.google.com/file/d/1O_LtUP9sch09QH3s_EBAgLEctBQ5JBSJ/view
 [birds_data]:http://www.vision.caltech.edu/datasets/cub_200_2011/
 [birds_pre_trained_DAMSM]:https://drive.google.com/open?id=1GNUKjVeyWYBJ8hEU-yrfYQpDOkxEyP3V
